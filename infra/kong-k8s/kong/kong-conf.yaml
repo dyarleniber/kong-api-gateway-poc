@@ -5,13 +5,33 @@
 # kubectl port-forward deploy/your-deployment-kong 8001:8001
 
 image:
-  repository: kong:2.8.1-alpine
+  repository: kong/kong-gateway
   tag: latest
+
+volumeMounts:
+  - mountPath: /usr/local/kong/plugins
+    name: plugins-volume
+
+volumes:
+  - defaultMode: 755
+  - name: plugins-volume
+    hostPath:
+      path: /Users/admin/workspace/personal/kong-api-gateway-poc/infra/kong-k8s/misc/plugins
+      type: Directory
 
 env:
   prefix: /kong_prefix/
   database: "off"
-  # plugins: bundled,oidc,kong-jwt2header
+  plugins: bundled,dummy-auth
+  pluginserver_names: "js"
+  pluginserver_js_socket: "/usr/local/kong/js_pluginserver.sock"
+  pluginserver_js_start_cmd: "/usr/local/bin/kong-js-pluginserver --plugins-directory /usr/local/kong/plugins"
+  pluginserver_js_query_cmd: "/usr/local/bin/kong-js-pluginserver --plugins-directory /usr/local/kong/plugins --dump-all-plugins"
+
+plugins:
+  configMaps:
+    - name: dummy-auth
+      pluginName: dummy-auth
 
 admin:
   enabled: true

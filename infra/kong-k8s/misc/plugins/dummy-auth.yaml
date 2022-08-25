@@ -1,0 +1,7 @@
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: dummy-auth
+config:
+  header_value: "dummy auth plugin"
+plugin: dummy-auth
