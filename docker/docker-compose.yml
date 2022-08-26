@@ -1,0 +1,39 @@
+version: "3.9"
+services:
+  kong:
+    build: .
+    user: "${KONG_USER:-kong}"
+    volumes:
+      - ./kong.yaml:/usr/local/kong/declarative/kong.yaml
+      - ./plugins:/usr/local/kong/js-plugins
+    environment:
+      # Use the config defined in kong.yaml
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yaml
+      # Enable the JS plugin server
+      KONG_PLUGINSERVER_NAMES: js
+      KONG_PLUGINSERVER_JS_SOCKET: /usr/local/kong/js_pluginserver.sock
+      KONG_PLUGINSERVER_JS_START_CMD: /usr/local/bin/kong-js-pluginserver --plugins-directory /usr/local/kong/js-plugins
+      KONG_PLUGINSERVER_JS_QUERY_CMD: /usr/local/bin/kong-js-pluginserver --plugins-directory /usr/local/kong/js-plugins --dump-all-plugins
+      # Allow plugins to be used. The plugin name is your JS file name e.g. hello.js
+      KONG_PLUGINS: bundled,dummy-auth
+      # Log level
+      KONG_LOG_LEVEL: info
+      # Show all output in the terminal when running with Docker
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      # Admin
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001, 0.0.0.0:8444 ssl
+    ports:
+      - "8000:8000/tcp"
+      - "8443:8443"
+      - "127.0.0.1:8001:8001"
+      - "127.0.0.1:8444:8444"
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    restart: on-failure
