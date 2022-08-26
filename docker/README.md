@@ -4,8 +4,6 @@ A proof of concept for setting up Kong API Gateway on Docker using declarative c
 
 ## Local setup
 
-To clone and run this POC, you’ll need to have npm, Docker, and Docker Compose installed on your computer.
-
 - Start the API gateway
 ```shell
 docker-compose up
