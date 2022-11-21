@@ -68,6 +68,8 @@ kubectl get pods -n kong
 - Set up the custom plugins
 ```shell
 kubectl apply -f plugins/dummy-auth.yaml && \
+kubectl apply -f plugins/add-response-header.yaml && \
+kubectl patch ingress kong-services -p '{"metadata":{"annotations":{"konghq.com/plugins":"add-response-header"}}}' && \
 kubectl patch ingress secure-kong-services -p '{"metadata":{"annotations":{"konghq.com/plugins":"dummy-auth-plugin"}}}'
 ```
 
