@@ -13,7 +13,7 @@ Kong can be installed on many systems. For Kubernetes, it can be installed [usin
 
 ## Local setup
 
-To clone and run this POC, you’ll need to have Git, Docker, [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl), and [minikube](https://github.com/kubernetes/minikube) installed on your computer.
+To clone and run this POC, you’ll need to have Git, Docker, [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl), [Helm](https://helm.sh) and [minikube](https://github.com/kubernetes/minikube) installed on your computer.
 
 - Clone this repository
 ```shell
@@ -28,6 +28,11 @@ cd kong-api-gateway-poc/k8s
 - Start minikube
 ```shell
 minikube start
+```
+
+- It will take a few minutes to get all resources provisioned
+```shell
+kubectl get nodes
 ```
 
 - Set up the services
@@ -55,9 +60,13 @@ kubectl create ns kong
 kubectl create configmap kong-plugin-dummy-auth --from-file=plugins/dummy-auth -n kong
 ```
 
-- Install Kong Ingress Controller
+- Install Kong Ingress Controller using Helm 3
 ```shell
-kubectl apply -f kong/kong-ingress.yaml -n kong
+helm repo add kong https://charts.konghq.com && \
+helm repo update && \
+helm install kong kong/kong \
+--values kong/values.yaml \
+--namespace kong
 ```
 
 - Make sure the Kong pods are running

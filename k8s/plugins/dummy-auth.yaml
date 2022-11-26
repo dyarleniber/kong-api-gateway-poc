@@ -4,7 +4,4 @@ metadata:
   name: dummy-auth-plugin
 config:
   message: "Hello"
-  add:
-    headers:
-      - "dummy auth plugin"
 plugin: dummy-auth

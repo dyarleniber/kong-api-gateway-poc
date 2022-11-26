@@ -1,0 +1,50 @@
+# Values for Kong's Helm Chart
+# https://github.com/Kong/charts/blob/main/charts/kong/values.yaml
+
+# Specify Kong configuration
+# The Helm Chart takes all entries defined under `env` and transforms them into `KONG_*`
+env:
+  log_level: debug
+  pluginserver_names: js
+  pluginserver_js_socket: /usr/local/kong/js_pluginserver.sock
+  pluginserver_js_start_cmd: /usr/local/bin/kong-js-pluginserver --plugins-directory /usr/local/kong/js-plugins
+  pluginserver_js_query_cmd: /usr/local/bin/kong-js-pluginserver --plugins-directory /usr/local/kong/js-plugins --dump-all-plugins
+
+# Specify Kong's Docker image
+image:
+  repository: dyarleniber/kong-pdk
+  tag: latest
+
+# Custom Kong plugins
+# The plugins are mounted at /opt/kong/plugins/<pluginName>
+plugins:
+  configMaps:
+    - pluginName: dummy-auth
+      name: kong-plugin-dummy-auth
+
+# Deployment parameters
+deployment:
+  # Define volumes and mounts in the Kong proxy container
+  userDefinedVolumes:
+    - name: js-plugins
+      emptyDir: {}
+  userDefinedVolumeMounts:
+    - name: js-plugins
+      mountPath: /usr/local/kong/js-plugins
+
+# Proxy container lifecycle hooks
+# Ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+lifecycle:
+  postStart:
+    exec:
+      command:
+        - /bin/sh
+        - -c
+        - |
+          #!/bin/sh
+          cp -R /opt/kong/plugins/* /usr/local/kong/js-plugins/
+          cd /usr/local/kong/js-plugins/dummy-auth && npm install
+
+# Kong Ingress Controller
+ingressController:
+  installCRDs: false
